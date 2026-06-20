@@ -1,4 +1,4 @@
-# ArduPilot Project
+# ArduPilot KILLISFALCON
 
 [![Discord](https://img.shields.io/discord/674039678562861068.svg)](https://ardupilot.org/discord)
 
