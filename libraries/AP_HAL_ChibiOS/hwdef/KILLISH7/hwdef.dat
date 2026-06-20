@@ -1,0 +1,233 @@
+# hwdef.dat for KILLISH7 flight controller
+# MCU: STM32H753VIT6
+# Schematic: Ardupilot_Dev_Board
+# Designer: Krishnaraj B 
+
+
+# -------------------------------------------------------
+# MCU & CLOCK
+# -------------------------------------------------------
+MCU STM32H7xx STM32H743xx
+APJ_BOARD_ID AP_HW_KILLISH7
+
+# 8 MHz crystal
+OSCILLATOR_HZ 8000000
+
+# -------------------------------------------------------
+# BOARD IDENTITY
+# -------------------------------------------------------
+define AP_CUSTOM_FIRMWARE_STRING "KILLISH7"
+define BOARD_NAME "KILLISH7"
+
+
+# -------------------------------------------------------
+# FLASH / STORAGE
+# -------------------------------------------------------
+FLASH_RESERVE_START_KB 128
+FLASH_SIZE_KB 2048
+STORAGE_FLASH_PAGE 14
+define HAL_STORAGE_SIZE 16384
+
+
+# -------------------------------------------------------
+# USB  (OTG_FS — USB TYPE-C J1)
+# -------------------------------------------------------
+PA11 OTG_FS_DM OTG1
+PA12 OTG_FS_DP OTG1
+
+# -------------------------------------------------------
+# SWD debug
+# -------------------------------------------------------
+PA13 JTMS-SWDIO SWD
+PA14 JTCK-SWCLK SWD
+
+
+# -------------------------------------------------------
+# USER LEDs
+# -------------------------------------------------------
+PD11 LED_GREEN OUTPUT LOW GPIO(90)
+define AP_NOTIFY_GPIO_LED_1_ENABLED 1
+define AP_NOTIFY_GPIO_LED_1_PIN 90
+
+# -------------------------------------------------------
+# SERIAL / UART ORDER
+# -------------------------------------------------------
+
+SERIAL_ORDER OTG1 UART7 USART1 UART8
+
+# --- UART7  →  Telemetry 1
+PE8  UART7_TX  UART7
+PE7  UART7_RX  UART7
+PE9  UART7_RTS UART7
+PE10 UART7_CTS UART7
+
+# --- UART5  →  Telemetry 2  
+#PC12 UART5_TX  UART5
+#PD2  UART5_RX  UART5
+#PC8  UART5_RTS UART5
+#PC9  UART5_CTS UART5
+
+# --- USART1 →  GPS 1  
+PB6  USART1_TX USART1
+PA10 USART1_RX USART1
+
+# --- USART8 →  GPS 2 
+PE1  UART8_TX UART8
+PE0  UART8_RX UART8
+
+# -------------------------------------------------------
+# I2C
+# -------------------------------------------------------
+I2C_ORDER I2C1 I2C2 I2C4
+
+# I2C1 — GPS1 connector (J5) 
+PB8 I2C1_SCL I2C1 PULLUP
+PB9 I2C1_SDA I2C1 PULLUP
+
+# I2C2 — GPS2 connector (J6)
+PB10 I2C2_SCL I2C2 PULLUP
+PB11 I2C2_SDA I2C2 PULLUP
+
+# I2C4 — Barometer MS5611 
+PD12 I2C4_SCL I2C4 PULLUP
+PD13 I2C4_SDA I2C4 PULLUP
+
+# -------------------------------------------------------
+# SPI1 — IMU sensors (BMI088 + ICM-42688-P)
+# -------------------------------------------------------
+PA5 SPI1_SCK  SPI1
+PA6 SPI1_MISO SPI1
+PA7 SPI1_MOSI SPI1
+
+# Chip selects
+PC15 BMI_A_CS CS     # BMI088 accelerometer CSB1
+PC14 BMI_G_CS CS     # BMI088 gyroscope     CSB2
+PC13 ICM_CS   CS     # ICM-42688-P           CS
+
+# Data ready interrupts
+#PE6  BMI_DRDY_A INPUT   # BMI088 accel INT1
+#PE5  BMI_DRDY_G INPUT   # BMI088 gyro  INT2
+#PD4  ICM_DRDY   INPUT   # ICM-42688 INT1
+
+# -------------------------------------------------------
+# SPI2 — FRAM (FM25V02A-GTR)
+# -------------------------------------------------------
+PD3  SPI2_SCK  SPI2
+PC2  SPI2_MISO SPI2
+PC3  SPI2_MOSI SPI2
+PD5  FRAM1_CS   CS
+
+# -------------------------------------------------------
+# SENSORS
+# -------------------------------------------------------
+
+# IMU 1 — BMI088 (accel + gyro combined)
+IMU BMI088       SPI:bmi088_a SPI:bmi088_g  ROTATION_ROLL_180
+
+# IMU 2 — ICM-42688-P
+IMU Invensensev3 SPI:icm42688               ROTATION_ROLL_180
+
+# Barometer — MS5611-01BA03 on I2C4
+BARO MS5611 I2C:2:0x77
+
+# Magnetometer — IST8310 on I2C4
+COMPASS IST8310 I2C:2:0x0E false ROTATION_NONE
+
+# Enable fast IMU sampling
+define HAL_DEFAULT_INS_FAST_SAMPLE 7
+define HAL_EKF_IMU_MASK_DEFAULT 7
+
+# -------------------------------------------------------
+# SDMMC — SD Card slot 
+# -------------------------------------------------------
+PC12 SDMMC1_CK  SDMMC1
+PD2  SDMMC1_CMD SDMMC1
+PC8  SDMMC1_D0  SDMMC1
+PC9  SDMMC1_D1  SDMMC1
+PC10 SDMMC1_D2  SDMMC1
+PC11 SDMMC1_D3  SDMMC1
+
+define HAL_OS_FATFS_IO 1
+define HAL_LOGGING_BACKENDS_DEFAULT 1
+define HAL_LOGGER_MIN_MB_FREE 25
+
+# -------------------------------------------------------
+# CAN  (TJA1051T/3 transceiver, J10 connector)
+# -------------------------------------------------------
+PD0  CAN1_RX  CAN1
+PD1  CAN1_TX  CAN1
+
+CAN_ORDER 1
+
+# -------------------------------------------------------
+# PWM OUTPUTS 
+# -------------------------------------------------------
+PA8  TIM1_CH1  TIM1 PWM(1) GPIO(50)   # PWM_1
+PE11 TIM1_CH2  TIM1 PWM(2) GPIO(51)   # PWM_2
+PE13 TIM1_CH3  TIM1 PWM(3) GPIO(52)   # PWM_3
+PE14 TIM1_CH4  TIM1 PWM(4) GPIO(53)   # PWM_4
+PD14 TIM4_CH3  TIM4 PWM(5) GPIO(54)   # PWM_5
+PD15 TIM4_CH4  TIM4 PWM(6) GPIO(55)   # PWM_6
+PA0  TIM2_CH1  TIM2 PWM(7) GPIO(56)   # PWM_7
+PA1  TIM2_CH2  TIM2 PWM(8) GPIO(57)   # PWM_8
+
+# -------------------------------------------------------
+# BUZZER  
+# -------------------------------------------------------
+PA3 BUZZER OUTPUT LOW GPIO(80)
+define BUZZER_PIN 80
+define HAL_BUZZER_ENABLE 1
+
+# -------------------------------------------------------
+# ANALOG — Voltage & Current sensors
+# -------------------------------------------------------
+# V_SENSOR (internal) — sheet 4
+PA4  V_SENSOR     ADC1 SCALE(1)
+
+# Power 1
+PC4  V_SENSOR_1   ADC1 SCALE(1)
+PC5  I_SENSOR_1   ADC1 SCALE(1)
+
+# Power 2
+PB1  V_SENSOR_2   ADC1 SCALE(1)
+PA2  I_SENSOR_2   ADC1 SCALE(1)
+
+define HAL_BATT_VOLT_PIN        14    # PC4 → ADC1 ch14
+define HAL_BATT_CURR_PIN        15    # PC5 → ADC1 ch15
+define HAL_BATT_VOLT_SCALE      10.1
+define HAL_BATT_CURR_SCALE      17.0
+define HAL_BATT_MONITOR_DEFAULT  4
+
+# -------------------------------------------------------
+# 5V POWER ENABLE (MIC94041 load switch driven by MCU)
+# -------------------------------------------------------
+#PE0  5V_EN   OUTPUT HIGH GPIO(81)
+#PE1  3V3_EN  OUTPUT HIGH GPIO(82)
+
+# -------------------------------------------------------
+# SPIDEV table summary
+# -------------------------------------------------------
+SPIDEV bmi088_a SPI1 DEVID1 BMI_A_CS  MODE3 10*MHZ 10*MHZ
+SPIDEV bmi088_g SPI1 DEVID2 BMI_G_CS  MODE3 10*MHZ 10*MHZ
+SPIDEV icm42688 SPI1 DEVID3 ICM_CS    MODE3 24*MHZ 24*MHZ
+SPIDEV ramtron  SPI2 DEVID1 FRAM1_CS  MODE0 8*MHZ   8*MHZ
+
+
+# -------------------------------------------------------
+# DMA priorities (keep motor timers on dedicated streams)
+# -------------------------------------------------------
+DMA_PRIORITY TIM1* TIM3* TIM4* TIM2*
+DMA_NOSHARE SPI1* SPI2*
+
+
+# -------------------------------------------------------
+# MISC
+# -------------------------------------------------------
+define AP_COMPASS_PROBING_ENABLED 1
+define AP_BARO_PROBE_EXTERNAL_I2C_BUSES 1
+define HAL_LOGGING_FILESYSTEM_ENABLED 1
+
+# -------------------------------------------------------
+# DFU MODE
+# -------------------------------------------------------
+ENABLE_DFU_BOOT 1
